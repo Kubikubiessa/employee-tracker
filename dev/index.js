@@ -29,7 +29,7 @@ const initialPrompt = () => {
           "View All Roles",
           "View All Employees",
           "Add Department",
-          "Add Roll",
+          "Add Role",
           "Add Employee",
           "Update Role",
           "Delete Employee",
@@ -61,14 +61,11 @@ const initialPrompt = () => {
         case "Update Role":
           updateRole();
           break;
-        case "Update Employee":
-          updateEmployee();
-          break;
         case "Delete Employee":
           deleteEmployeeById();
           break;
-        default:
-          end();
+        case "Exit":
+        endApp();
       }
     });
 };
@@ -101,8 +98,8 @@ function viewEmployees() {
   });
   initialPrompt();
 }
-function addDepartment() {
-  inquirer
+async function addDepartment() {
+  await inquirer
     .prompt([
       {
         type: "input",
@@ -122,8 +119,18 @@ function addDepartment() {
       initialPrompt();
     });
 }
-function addRole() {
-  inquirer
+const departmentAndId = [];
+db.query("SELECT name, id FROM departments", function (err, results) {
+  if (err) {
+    console.log(err);
+  }
+  results.forEach((element) => {
+    departmentAndId.push(`${element.name} ${element.id}`);
+  });
+  //console.table(results);
+});
+async function addRole() {
+  await inquirer
     .prompt([
       {
         type: "input",
@@ -136,19 +143,26 @@ function addRole() {
         message: "What is the salary of the new role?",
       },
       {
+        type: "list",
+        name: "departmentList",
+        message: "What department does this new role belong to?",
+        choices: departmentAndId,
+      },
+      {
         type: "input",
         name: "depIdAdded",
-        message: "What department does this new role belong to?",
+        message: "What is the department Id of the new role?",
       },
     ])
     .then(function (results) {
       db.query(
-        "INSERT INTO roles SET ?",
-        {
-          title: results.titleAdded,
-          salary: results.salaryAdded,
-          dep_id: results.depIdAdded,
-        },
+        "INSERT INTO roles (title, salary, department) VALUES (?, ?, ?)",
+        //"INSERT INTO roles SET ?",
+        [
+          results.titleAdded,
+          results.salaryAdded,
+          results.depIdAdded,
+        ],
         (err, results) => {
           if (err) throw err;
           console.table(results);
@@ -157,8 +171,8 @@ function addRole() {
       initialPrompt();
     });
 }
-function addEmployee() {
-  inquirer
+async function addEmployee() {
+  await inquirer
     .prompt([
       {
         type: "list",
@@ -166,40 +180,40 @@ function addEmployee() {
         message: "Would you like to add an employee to the database?",
         choices: ["yes", "no"],
       },
-    //   {
-    //     type: "input",
-    //     name: "firstName",
-    //     message: "What is the employee's first name?",
-    //   },
-    //   {
-    //     type: "input",
-    //     name: "lastName",
-    //     message: "What is the employee's last name?",
-    //   },
-    //   {
-    //     type: "input",
-    //     name: "roleIdAdded",
-    //     message: "What is the employee's role id?",
-    //   },
+      //   {
+      //     type: "input",
+      //     name: "firstName",
+      //     message: "What is the employee's first name?",
+      //   },
+      //   {
+      //     type: "input",
+      //     name: "lastName",
+      //     message: "What is the employee's last name?",
+      //   },
+      //   {
+      //     type: "input",
+      //     name: "roleIdAdded",
+      //     message: "What is the employee's role id?",
+      //   },
       {
         type: "list",
         name: "managerIdAdded",
         message: "Does the new employee report to a manager?",
-        choices: ["yes", "no",]
+        choices: ["yes", "no"],
       },
     ])
-    .then(function( {managerIdAdded} ) {
-        let managerId;
-        if (managerIdAdded === "no") {
-            managerId = null;
-        } else if (managerIdAdded === "yes") {
-
-        return inquirer.prompt([{
+    .then(function ({ managerIdAdded }) {
+      let managerId;
+      if (managerIdAdded === "no") {
+        managerId = null;
+      } else if (managerIdAdded === "yes") {
+        return inquirer.prompt([
+          {
             type: "input",
-            message: 'Enter manager id',
-            name: "managerId"
-        },
-        {
+            message: "Enter manager id",
+            name: "managerId",
+          },
+          {
             type: "input",
             name: "firstName",
             message: "What is the employee's first name?",
@@ -214,11 +228,19 @@ function addEmployee() {
             name: "roleIdAdded",
             message: "What is the employee's role id?",
           },
-         ])
-    }}).then(function (results) {
-        console.log(results);
+        ]);
+      }
+    })
+    .then(function (results) {
+      console.log(results);
       db.query(
-        "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [results.firstName, results.lastName, results.roleIdAdded, results.managerId],
+        "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)",
+        [
+          results.firstName,
+          results.lastName,
+          results.roleIdAdded,
+          results.managerId,
+        ],
         // {
         //   first_name: results.firstName,
         //   last_name: results.lastName,
@@ -231,7 +253,6 @@ function addEmployee() {
           initialPrompt();
         }
       );
-      
     });
 }
 const nameAndId = [];
@@ -243,6 +264,15 @@ db.query("SELECT last_name, id FROM employees", function (err, results) {
     nameAndId.push(`${element.last_name} ${element.id}`);
   });
   //console.table(results);
+});
+const rolesAndId = [];
+db.query("SELECT title, id FROM roles", function (err, results) {
+  if (err) {
+    console.log(err);
+  }
+  results.forEach((element) => {
+    rolesAndId.push(`${element.title} ${element.id}`);
+  });
 });
 
 async function updateRole() {
@@ -265,17 +295,7 @@ async function updateRole() {
         type: "list",
         name: "pickRoleId",
         message: "Select the desired new role_id and remember it.",
-        choices: [
-          "Sales lead, role_id: 1",
-          "Sales Person, role_id: 2",
-          "Lead Engineer, role_id: 3",
-          "Software Engineer, role_id: 4",
-          "Account Manager, role_id: 5",
-          "Accountant, role_id: 6",
-          "Legal Team Lead, role_id: 7",
-          "Lawyer, role_id: 8",
-        ],
-         
+        choices: rolesAndId,
       },
 
       {
@@ -289,10 +309,10 @@ async function updateRole() {
       db.query(
         "UPDATE employees SET role_id = ? WHERE id = ?",
         [results.newRoleId, results.updatedEmployeeId],
-         
+
         function (err, results) {
           if (err) throw err;
-          
+
           console.table(results);
         }
       );
@@ -300,14 +320,13 @@ async function updateRole() {
   initialPrompt();
 }
 async function deleteEmployeeById() {
- await  inquirer
+  await inquirer
     .prompt([
       {
         type: "list",
         name: "updateByName",
         message: "Select the employee's name and remember their id.",
         choices: nameAndId,
-     
       },
       {
         type: "input",
@@ -317,7 +336,6 @@ async function deleteEmployeeById() {
       },
     ])
     .then(function (results) {
-       
       db.query(
         "DELETE FROM employees WHERE id = ?",
         [results.deleteEmployeeId],
@@ -331,7 +349,22 @@ async function deleteEmployeeById() {
     });
   initialPrompt();
 };
-
+async function endApp() {
+    await inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "exit",
+        message: "Bye, bye!",
+       
+      },
+    ])
+    .then( ()=> {
+        db.end();
+    });
+   
+};
+ 
 /* Initial Prompt with choices of what to do:
 inquirer prompt - What would you like to do? 
 if view something call any of the view functions (switch statement?)
