@@ -161,41 +161,77 @@ function addEmployee() {
   inquirer
     .prompt([
       {
-        type: "input",
-        name: "firstName",
-        message: "What is the employee's first name?",
+        type: "list",
+        name: "addEmployee",
+        message: "Would you like to add an employee to the database?",
+        choices: ["yes", "no"],
       },
+    //   {
+    //     type: "input",
+    //     name: "firstName",
+    //     message: "What is the employee's first name?",
+    //   },
+    //   {
+    //     type: "input",
+    //     name: "lastName",
+    //     message: "What is the employee's last name?",
+    //   },
+    //   {
+    //     type: "input",
+    //     name: "roleIdAdded",
+    //     message: "What is the employee's role id?",
+    //   },
       {
-        type: "input",
-        name: "lastName",
-        message: "What is the employee's last name?",
-      },
-      {
-        type: "input",
-        name: "roleIdAdded",
-        message: "What is the employee's role id?",
-      },
-      {
-        type: "input",
+        type: "list",
         name: "managerIdAdded",
-        message: "What is the employee's manager id?",
+        message: "Does the new employee report to a manager?",
+        choices: ["yes", "no",]
       },
     ])
-    .then(function (results) {
-      db.query(
-        "INSERT INTO employees SET ?",
-        {
-          first_name: results.firstName,
-          last_name: results.lastName,
-          role_id: results.roleIdAdded,
-          manager_id: results.managerIdAdded,
+    .then(function( {managerIdAdded} ) {
+        let managerId;
+        if (managerIdAdded === "no") {
+            managerId = null;
+        } else if (managerIdAdded === "yes") {
+
+        return inquirer.prompt([{
+            type: "input",
+            message: 'Enter manager id',
+            name: "managerId"
         },
+        {
+            type: "input",
+            name: "firstName",
+            message: "What is the employee's first name?",
+          },
+          {
+            type: "input",
+            name: "lastName",
+            message: "What is the employee's last name?",
+          },
+          {
+            type: "input",
+            name: "roleIdAdded",
+            message: "What is the employee's role id?",
+          },
+         ])
+    }}).then(function (results) {
+        console.log(results);
+      db.query(
+        "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [results.firstName, results.lastName, results.roleIdAdded, results.managerId],
+        // {
+        //   first_name: results.firstName,
+        //   last_name: results.lastName,
+        //   role_id: results.roleIdAdded,
+        //   manager_id: results.managerId,
+        // },
         (err, results) => {
           if (err) throw err;
           console.table(results);
+          initialPrompt();
         }
       );
-      initialPrompt();
+      
     });
 }
 const nameAndId = [];
@@ -209,8 +245,8 @@ db.query("SELECT last_name, id FROM employees", function (err, results) {
   //console.table(results);
 });
 
-function updateRole() {
-  inquirer
+async function updateRole() {
+  await inquirer
     .prompt([
       {
         type: "list",
@@ -261,10 +297,10 @@ function updateRole() {
         }
       );
     });
-  //initialPrompt();
+  initialPrompt();
 }
-function deleteEmployeeById() {
-  inquirer
+async function deleteEmployeeById() {
+ await  inquirer
     .prompt([
       {
         type: "list",
@@ -293,7 +329,7 @@ function deleteEmployeeById() {
         }
       );
     });
-  //initialPrompt();
+  initialPrompt();
 };
 
 /* Initial Prompt with choices of what to do:

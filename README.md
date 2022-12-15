@@ -1,4 +1,4 @@
-# employee-tracker
+# Employee-Tracker
 This application is able to track different employee data
 
 # User Story
