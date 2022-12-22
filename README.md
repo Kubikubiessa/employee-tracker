@@ -1,12 +1,28 @@
-# Employee-Tracker
-This application is able to track different employee data
 
-# User Story
+
+
+# Employee Tracker 
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  ## Table of Contents 
+  -  
+  - [Description](#description)
+  - [Usage](#usage)
+  - [Contributing](#contributing)
+  - [Installation](#installation)
+  - [Mock-Up](#mock-up)
+  - [Questions](#questions)
+  - [License](#license)
+## Description
+  This application is able to track employee data using a MySQL database.
+
+## Usage
+  This application is used for tracking and manipulating employee data.
+  ### User Story
 AS A business owner
 I WANT to be able to view and manage the departments, roles, and employees in my company
 SO THAT I can organize and plan my business
 
-# Acceptance Criteria
+### Acceptance Criteria
 GIVEN a command-line application that accepts user input
 WHEN I start the application
 THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
@@ -24,3 +40,18 @@ WHEN I choose to add an employee
 THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
 WHEN I choose to update an employee role
 THEN I am prompted to select an employee to update and their new role and this information is updated in the database
+## Contributing
+  Please clone the repo to your local machine and make a push request with anything you teem would improve the application.
+## Installation
+  The user should clone the repository from GitHub and download Node. This application also requires inquirer module.  
+## Mock-Up
+
+[Demonstration](https://drive.google.com/file/d/1OQyfQgK-j7MrNczWZ_4dBLzUwyeiPthR/view)
+## Questions
+Please contact me at:
+  https://github.com/Kubikubiessa 
+  or 
+  kubikubiessa@gmail.com
+  
+## License
+  Licensed under the [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

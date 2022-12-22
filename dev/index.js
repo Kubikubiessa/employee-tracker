@@ -65,7 +65,7 @@ const initialPrompt = () => {
           deleteEmployeeById();
           break;
         case "Exit":
-        endApp();
+          endApp();
       }
     });
 };
@@ -158,11 +158,7 @@ async function addRole() {
       db.query(
         "INSERT INTO roles (title, salary, department) VALUES (?, ?, ?)",
         //"INSERT INTO roles SET ?",
-        [
-          results.titleAdded,
-          results.salaryAdded,
-          results.depIdAdded,
-        ],
+        [results.titleAdded, results.salaryAdded, results.depIdAdded],
         (err, results) => {
           if (err) throw err;
           console.table(results);
@@ -180,21 +176,21 @@ async function addEmployee() {
         message: "Would you like to add an employee to the database?",
         choices: ["yes", "no"],
       },
-      //   {
-      //     type: "input",
-      //     name: "firstName",
-      //     message: "What is the employee's first name?",
-      //   },
-      //   {
-      //     type: "input",
-      //     name: "lastName",
-      //     message: "What is the employee's last name?",
-      //   },
-      //   {
-      //     type: "input",
-      //     name: "roleIdAdded",
-      //     message: "What is the employee's role id?",
-      //   },
+      {
+        type: "input",
+        name: "firstName",
+        message: "What is the employee's first name?",
+      },
+      {
+        type: "input",
+        name: "lastName",
+        message: "What is the employee's last name?",
+      },
+      {
+        type: "input",
+        name: "roleIdAdded",
+        message: "What is the employee's role id?",
+      },
       {
         type: "list",
         name: "managerIdAdded",
@@ -202,59 +198,139 @@ async function addEmployee() {
         choices: ["yes", "no"],
       },
     ])
-    .then(function ({ managerIdAdded }) {
-      let managerId;
-      if (managerIdAdded === "no") {
-        managerId = null;
-      } else if (managerIdAdded === "yes") {
-        return inquirer.prompt([
-          {
-            type: "input",
-            message: "Enter manager id",
-            name: "managerId",
-          },
-          {
-            type: "input",
-            name: "firstName",
-            message: "What is the employee's first name?",
-          },
-          {
-            type: "input",
-            name: "lastName",
-            message: "What is the employee's last name?",
-          },
-          {
-            type: "input",
-            name: "roleIdAdded",
-            message: "What is the employee's role id?",
-          },
-        ]);
-      }
-    })
     .then(function (results) {
-      console.log(results);
-      db.query(
-        "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)",
-        [
-          results.firstName,
-          results.lastName,
-          results.roleIdAdded,
-          results.managerId,
-        ],
-        // {
-        //   first_name: results.firstName,
-        //   last_name: results.lastName,
-        //   role_id: results.roleIdAdded,
-        //   manager_id: results.managerId,
-        // },
-        (err, results) => {
-          if (err) throw err;
-          console.table(results);
-          initialPrompt();
-        }
-      );
+      //   let managerId;
+      //   if (managerIdAdded === "no") {
+      //     managerId = null;
+      //     console.log(managerId)
+      //     return (function (results) {
+      //console.log(results);
+      if (results.managerIdAdded === "no") {
+        managerId = null;
+        console.log(managerId);
+        db.query(
+          "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)",
+          [
+            results.firstName,
+            results.lastName,
+            results.roleIdAdded,
+            results.managerId,
+          ],
+          // {
+          //   first_name: results.firstName,
+          //   last_name: results.lastName,
+          //   role_id: results.roleIdAdded,
+          //   manager_id: results.managerId,
+          // },
+          (err, results) => {
+            if (err) throw err;
+            console.table(results);
+            initialPrompt();
+          }
+        );
+      };
+
+      if (results.managerIdAdded === "yes") {
+        
+        return inquirer
+          .prompt([
+            {
+              type: "input",
+              message: "Enter manager id",
+              name: "managerId",
+            },
+            {
+                type: "input",
+                name: "firstName",
+                message: "What is the employee's first name?",
+              },
+              {
+                type: "input",
+                name: "lastName",
+                message: "What is the employee's last name?",
+              },
+              {
+                type: "input",
+                name: "roleIdAdded",
+                message: "What is the employee's role id?",
+              },
+          ])
+          .then(function (results) {
+            console.log(results);
+            db.query(
+              "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)",
+              [
+                results.firstName,
+                results.lastName,
+                results.roleIdAdded,
+                results.managerId,
+              ],
+              // {
+              //   first_name: results.firstName,
+              //   last_name: results.lastName,
+              //   role_id: results.roleIdAdded,
+              //   manager_id: results.managerId,
+              // },
+              (err, results) => {
+                if (err) throw err;
+                console.table(results);
+                initialPrompt();
+              }
+            );
+          });
+      }
     });
 }
+//               ;});
+//         ;
+//       } else if (managerIdAdded === "yes") {
+//         return inquirer.prompt([
+//           {
+//             type: "input",
+//             message: "Enter manager id",
+//             name: "managerId",
+//           },
+//         //   {
+//         //     type: "input",
+//         //     name: "firstName",
+//         //     message: "What is the employee's first name?",
+//         //   },
+//         //   {
+//         //     type: "input",
+//         //     name: "lastName",
+//         //     message: "What is the employee's last name?",
+//         //   },
+//         //   {
+//         //     type: "input",
+//         //     name: "roleIdAdded",
+//         //     message: "What is the employee's role id?",
+//         //   },
+//         ]);
+//       }
+//     }).then(function (results) {
+//       console.log(results);
+//       db.query(
+//         "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)",
+//         [
+//           results.firstName,
+//           results.lastName,
+//           results.roleIdAdded,
+//           results.managerId,
+//         ],
+//         // {
+//         //   first_name: results.firstName,
+//         //   last_name: results.lastName,
+//         //   role_id: results.roleIdAdded,
+//         //   manager_id: results.managerId,
+//         // },
+//         (err, results) => {
+//           if (err) throw err;
+//           console.table(results);
+//           initialPrompt();
+//         }
+//       );
+//     });
+// }
 const nameAndId = [];
 db.query("SELECT last_name, id FROM employees", function (err, results) {
   if (err) {
@@ -348,23 +424,21 @@ async function deleteEmployeeById() {
       );
     });
   initialPrompt();
-};
+}
 async function endApp() {
-    await inquirer
+  await inquirer
     .prompt([
       {
         type: "input",
         name: "exit",
         message: "Bye, bye!",
-       
       },
     ])
-    .then( ()=> {
-        db.end();
+    .then(() => {
+      db.end();
     });
-   
-};
- 
+}
+
 /* Initial Prompt with choices of what to do:
 inquirer prompt - What would you like to do? 
 if view something call any of the view functions (switch statement?)
